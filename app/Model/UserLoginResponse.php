@@ -3,8 +3,7 @@ namespace rakafebriansy\phpmvc\Model;
 
 use rakafebriansy\phpmvc\Domain\User;
 
-
-class UserRegisterResponse
+class UserLoginResponse
 {
     public User $user;
 }

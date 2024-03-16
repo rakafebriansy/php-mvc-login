@@ -5,6 +5,8 @@ namespace rakafebriansy\phpmvc\Service;
 use rakafebriansy\phpmvc\Config\Database;
 use rakafebriansy\phpmvc\Exception\ValidationException;
 use rakafebriansy\phpmvc\Domain\User;
+use rakafebriansy\phpmvc\Model\UserLoginRequest;
+use rakafebriansy\phpmvc\Model\UserLoginResponse;
 use rakafebriansy\phpmvc\Model\UserRegisterRequest;
 use rakafebriansy\phpmvc\Model\UserRegisterResponse;
 use rakafebriansy\phpmvc\Repository\UserRepository;
@@ -20,7 +22,7 @@ class UserService
 
     public function register(UserRegisterRequest $request): UserRegisterResponse
     {
-        $this->validateRegistrationRequest($request);
+        $this->validateUserRegistrationRequest($request);
 
         try {
             Database::beginTransaction();
@@ -47,11 +49,37 @@ class UserService
         }
     }
 
-    private function validateRegistrationRequest(UserRegisterRequest $request)
+    private function validateUserRegistrationRequest(UserRegisterRequest $request)
     {
         if ($request->id == null || $request->name == null || $request->password == null ||
-        trim($request->id) == '' || trim($request->name) == '' || trim($request->password) == '') {
+            trim($request->id) == '' || trim($request->name) == '' || trim($request->password) == '') {
             throw new ValidationException(('Id, Name, and Password can\'t blank.'));
+        }
+    }
+
+    public function login(UserLoginRequest $request): UserLoginResponse
+    {
+        $this->validateUserLoginRequest($request);
+        $user = $this->user_repository->findById($request->id);
+
+        if($user == null){
+            throw new ValidationException('Id or password is wrong.');
+        }
+        
+        if(password_verify($request->password, $user->password)){
+            $response = new UserLoginResponse();
+            $response->user = $user;
+            return $response;
+        } else {
+            throw new ValidationException('Id or password is wrong.');
+        }
+    }
+
+    public function validateUserLoginRequest(UserLoginRequest $request)
+    {
+        if ($request->id == null || $request->password == null ||
+            trim($request->id) == '' || trim($request->password) == '') {
+            throw new ValidationException(('Id and Password can\'t blank.'));
         }
     }
 }
