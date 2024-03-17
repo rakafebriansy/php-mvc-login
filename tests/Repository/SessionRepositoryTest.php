@@ -5,16 +5,27 @@ namespace rakafebriansy\phpmvc\Repository;
 use PHPUnit\Framework\TestCase;
 use rakafebriansy\phpmvc\Config\Database;
 use rakafebriansy\phpmvc\Domain\Session;
+use rakafebriansy\phpmvc\Domain\User;
 
 class SessionRepositoryTest extends TestCase
 {
     private SessionRepository $session_repository;
+    private UserRepository $user_repository;
 
     protected function setUp(): void
     {
         $conn = Database::getConnection();
+        $this->user_repository = new UserRepository($conn);
         $this->session_repository = new SessionRepository($conn);
+
         $this->session_repository->deleteAll();
+        $this->user_repository->deleteAll();
+
+        $user = new User();
+        $user->id = 'raka';
+        $user->name = 'Raka';
+        $user->password = '12345';
+        $this->user_repository->save($user);
     }
     public function testSaveSuccess()
     {
